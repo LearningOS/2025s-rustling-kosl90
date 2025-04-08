@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,18 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut i = self.count;
+
+        while i > 1 {
+            let p = self.parent_idx(i);
+            if (self.comparator)(&self.items[p], &self.items[i]) {
+                break;
+            }
+            self.items.swap(p, i);
+            i = p;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +67,34 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let mut smallest_idx = idx;
+        let left_child_idx = self.left_child_idx(idx);
+        if left_child_idx <= self.count
+            && (self.comparator)(&self.items[left_child_idx], &self.items[smallest_idx])
+        {
+            smallest_idx = left_child_idx;
+        }
+
+        let right_child_idx = self.right_child_idx(idx);
+        if right_child_idx <= self.count
+            && (self.comparator)(&self.items[right_child_idx], &self.items[smallest_idx])
+        {
+            smallest_idx = right_child_idx;
+        }
+        smallest_idx
+    }
+
+    fn fix_down(&mut self, idx: usize) {
+        let mut i = idx;
+        loop {
+            let s = self.smallest_child_idx(i);
+            if (self.comparator)(&self.items[s], &self.items[i]) {
+                self.items.swap(s, i);
+                i = s;
+            } else {
+                break;
+            }
+        }
     }
 }
 
@@ -84,8 +120,13 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count <= 0 {
+            return None;
+        }
+        let v = self.items.swap_remove(1);
+        self.count -= 1;
+        self.fix_down(1);
+        return Some(v);
     }
 }
 
